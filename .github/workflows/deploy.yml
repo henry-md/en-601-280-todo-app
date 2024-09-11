@@ -1,26 +1,26 @@
 name: Deploy Vite app to GitHub Pages
-
+ 
 on:
   push:
     branches:
       - main
-
+ 
 permissions:
   contents: read
   pages: write
   id-token: write
-
+ 
 concurrency:
   group: "pages"
   cancel-in-progress: true
-
+ 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.6
-
+ 
       - name: Detect package manager
         id: detect-package-manager
         run: |
@@ -43,35 +43,35 @@ jobs:
             echo "Unable to determine package manager"
             exit 1
           fi
-
+ 
       - name: Install pnpm
         if: steps.detect-package-manager.outputs.manager == 'pnpm'
         run: npm install -g pnpm
-
+ 
       - name: Install yarn
         if: steps.detect-package-manager.outputs.manager == 'yarn'
         run: npm install -g yarn
-
+ 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "latest"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
-
+ 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5.0.0
       
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-
+ 
       - name: Build with Vite
         run: ${{ steps.detect-package-manager.outputs.manager }} run build
-
+ 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3.0.1
         with:
           path: ./dist
-
+ 
   deploy:
     environment:
       name: github-pages
